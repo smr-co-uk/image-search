@@ -1,0 +1,10 @@
+.conda
+.vscode
+.idea
+.pytest_cache
+build
+test_results
+tmp
+photos
+__pycache__
+
