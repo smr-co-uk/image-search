@@ -1,0 +1,12 @@
+name: base
+channels:
+  - conda-forge
+dependencies:
+  - requests-mock = 1.10.0
+  - pytest-mock
+  - pytest-cov
+  - pytest-html
+  - pytest-metadata
+  - pytest-mock
+  - pytest-subprocess
+

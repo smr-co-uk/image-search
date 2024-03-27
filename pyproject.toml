@@ -1,0 +1,29 @@
+[project]
+name = "image-search"
+version = "1.0.0"
+authors = [
+    {name = "PL"},
+]
+description = "Image Search"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "pip",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+#addopts = "-ra --no-header --disable-warnings -p no:faulthandler --cov=. --cov-report=term --cov-report=html --html=build/pytest_report.html --self-contained-html --junitxml=build/xunit.html"
+addopts = "-ra --no-header --disable-warnings -p no:faulthandler --html=build/pytest_report.html --self-contained-html --junitxml=build/xunit.html"
+pythonpath = "src"
+testpaths = [
+    "tests/unit",
+]
+
+[tool.coverage.html]
+directory = "build"
