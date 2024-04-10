@@ -7,7 +7,7 @@ import os
 
 
 class ImageSearcher:
-    def __init__(self, image_set_dir, hash_function="average_hash", catalog=False, verbose=False):
+    def __init__(self, image_set_dir: str, hash_function: str = "average_hash", catalog=False, verbose=False):
         self.image_set_dir = image_set_dir
         self.hash_function = hash_function
         self.verbose = verbose
@@ -60,16 +60,20 @@ class ImageSearcher:
     def apply_hash_function(self, image: Image) -> ImageHash:
         return self.hasher(image)
 
-    def find_similar(self, query_image_path, threshold=1):
+    def find_similar(self, query_image_path: str, threshold=1):
         query_image = Image.open(query_image_path)
-        query_hash = self.apply_hash_function(query_image)
+        return self.find_similar_image(query_image, query_image_path, threshold)
+
+    def find_similar_image(self, query_image: Image, query_image_path: str, threshold=1) -> list[str]:
         similar_images = []
+        if query_image is None:
+            return similar_images
+        query_hash = self.apply_hash_function(query_image)
         for filename, hash_value in self.image_data.items():
             if filename != query_image_path and abs(query_hash - hash_value) <= threshold:
                 # similar_images.append(os.path.join(self.image_set_dir, filename))
-                csv_str = f"{os.path.join(self.image_set_dir, filename)}"
-                similar_images.append(csv_str)
-
+                path = f"{os.path.join(self.image_set_dir, filename)}"
+                similar_images.append(path)
         return similar_images
 
     def find_images(self, root_dir) -> list[str]:
