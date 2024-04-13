@@ -39,6 +39,7 @@ def layout(root_dir: str) -> dbc.Container:
         dbc.Row([
             dbc.Col(html.Div("Find images using algorithm and threshold"), width=3),
             dbc.Col(dbc.Button(id='find-button', children="Find", n_clicks=1, disabled=True), width=1),
+            dbc.Col(dbc.Button(id='rotate-button', children="Rotate", n_clicks=1, disabled=True), width=1),
         ], className="border mb-2 mt-2"),
         dbc.Row([
             dbc.Col([
@@ -81,7 +82,7 @@ def layout(root_dir: str) -> dbc.Container:
 def parse_contents(contents, filename, date):
     image = ih.image_from_base64(contents)
     # print(image.size)
-    height, ii, width = ih.resize_image_keep_aspect_ratio(image)
+    height, ii, width, _, _ = ih.resize_image_keep_aspect_ratio(image)
     # print(ii.size)
     return html.Div([
         html.H5(filename),
@@ -97,7 +98,7 @@ def parse_contents(contents, filename, date):
 def load_image(path):
     image = Image.open(path)
     # print(image.size)
-    height, ii, width = ih.resize_image_keep_aspect_ratio(image)
+    height, ii, width, _, _ = ih.resize_image_keep_aspect_ratio(image)
     # print(ii.size)
     return html.Div([
         html.H5(path),
@@ -109,17 +110,16 @@ def load_image(path):
 
 @callback(Output('output-image-upload', 'children'),
           Output("find-button", "n_clicks"),
-          Input("find-button", "n_clicks"),
           [Input('upload-image', 'contents')],
           [Input('upload-image', 'filename')],
           [Input('upload-image', 'last_modified')],
           prevent_initial_call=True,
           )
-def upload_image(clicks, list_of_contents, list_of_names, list_of_dates):
+def upload_image(list_of_contents, list_of_names, list_of_dates):
     if list_of_contents is not None:
         children = [
             parse_contents(c, n, d) for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)]
-        return children, clicks
+        return children, 1
         # if children is not None and len(children) > 0:
         # return [], 0
 
@@ -134,15 +134,42 @@ def upload_image(clicks, list_of_contents, list_of_names, list_of_dates):
           running=[
               (Output("catalog-button", "disabled"), True, False),
               (Output("find-button", "disabled"), True, False),
+              (Output("rotate-button", "disabled"), True, False),
               ]
       )
 def find_images(clicks, root_dir, hash_function, image_to_find, threshold):
     print(f"{clicks} {root_dir} {hash_function} {threshold}")
     image_searcher = ImageSearcher(root_dir, hash_function)
 
-    images = image_searcher.find_similar_image(ih.image_from_base64(image_to_find), "Uploaded", threshold=threshold)
-    image_html = [load_image(a) for a in images]
-    return image_html
+    image = ih.image_from_base64(image_to_find)
+    print(f"hidden image {image.height} {image.width}")
+
+    images = image_searcher.find_similar_image(image, "Uploaded", threshold=threshold)
+    if images is not None and len(images) > 0:
+        image_html = [load_image(a) for a in images]
+        return image_html
+    return html.Div('No Images Found', className="text-danger text-center fs-3", style={"color": "red", "font-weight": "bold"},)
+
+
+@callback(Output('image-to-find-hidden', 'src'),
+          Output('image-to-find', 'src'),
+          Input("rotate-button", "n_clicks"),
+          State('image-to-find-hidden', 'src'),
+          prevent_initial_call=True,
+          running=[
+              (Output("catalog-button", "disabled"), True, False),
+              (Output("find-button", "disabled"), True, False),
+              (Output("rotate-button", "disabled"), True, False),
+              ]
+      )
+def rotate_image(clicks, image_to_find_64):
+    image_to_find = ih.image_from_base64(image_to_find_64)
+    image = ih.rotate_image(image_to_find, -90)
+    height, ii, width, new_height, new_width = ih.resize_image_keep_aspect_ratio(image)
+    print(f"image_to_find hidden image {image_to_find.height} {image_to_find.width}")
+    print(f"rotated hidden image {image.height} {image.width}")
+    print(f"display image {new_height} {new_width}")
+    return image, ii
 
 
 @callback(Output('warning-text', 'children'),
@@ -155,6 +182,7 @@ def find_images(clicks, root_dir, hash_function, image_to_find, threshold):
                     "Warning cataloging images may take a long time"),
                    (Output("catalog-button", "disabled"), True, False),
                    (Output("find-button", "disabled"), True, False),
+                   (Output("rotate-button", "disabled"), True, False),
                    (Output("catalog-alert", "is_open"), True, False),
                    ]
           )
@@ -169,6 +197,12 @@ if __name__ == '__main__':
     parser = ArgumentParser(description="Find image files in a directory tree.")
     parser.add_argument("-r", "--root_dir", required=False, default=f"{os.getenv('HOME')}/Pictures/Media/photos/scanned",
                         help="The root directory to search for images and location of the catalog.")
+    parser.add_argument("-d", "--debug", required=False, default=False, action='store_true',
+                        help="Enable debug mode.")
+    parser.add_argument("-H", "--host", required=False, default="127.0.0.1",
+                        help="The hostname or ip of the server.")
+    parser.add_argument("-p", "--port", required=False, default="8050",
+                        help="The port the server is listening on.")
     args = parser.parse_args()
     # Initialize the app - incorporate a Dash Bootstrap theme
     external_stylesheets = [dbc.themes.CERULEAN]
@@ -178,4 +212,4 @@ if __name__ == '__main__':
 
     # App layout
     app.layout = layout(args.root_dir)
-    app.run_server(debug=True)
+    app.run_server(debug=args.debug, host=args.host, port=args.port)

@@ -14,3 +14,6 @@ echo "**** ${SYSTEM_NAME} docker build"
 echo "**** ${SYSTEM_NAME} unit test"
 ./docker/${SYSTEM_NAME}_unit_test/build.sh ${VERSION} ${VERSION}
 ./docker/${SYSTEM_NAME}_unit_test/test_in_docker.sh
+
+echo "**** ${SYSTEM_NAME} app build"
+./docker/${SYSTEM_NAME}_app/build.sh ${VERSION} ${VERSION}
