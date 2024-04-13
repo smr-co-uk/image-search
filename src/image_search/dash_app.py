@@ -153,6 +153,7 @@ def find_images(clicks, root_dir, hash_function, image_to_find, threshold):
 
 @callback(Output('image-to-find-hidden', 'src'),
           Output('image-to-find', 'src'),
+          Output("find-button", "n_clicks", allow_duplicate=True),
           Input("rotate-button", "n_clicks"),
           State('image-to-find-hidden', 'src'),
           prevent_initial_call=True,
@@ -169,7 +170,7 @@ def rotate_image(clicks, image_to_find_64):
     print(f"image_to_find hidden image {image_to_find.height} {image_to_find.width}")
     print(f"rotated hidden image {image.height} {image.width}")
     print(f"display image {new_height} {new_width}")
-    return image, ii
+    return image, ii, 1
 
 
 @callback(Output('warning-text', 'children'),
