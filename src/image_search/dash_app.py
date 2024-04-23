@@ -193,6 +193,17 @@ def catalog_images(clicks, root_dir, hash_function):
     print(f"catalog finished")
     return html.Div("Warning cataloging images may take a long time")
 
+def main(args):
+    # Initialize the app - incorporate a Dash Bootstrap theme
+    external_stylesheets = [dbc.themes.CERULEAN]
+    app = Dash(__name__,
+               external_stylesheets=external_stylesheets,
+               suppress_callback_exceptions=True, )
+
+    # App layout
+    app.layout = layout(args.root_dir)
+    app.run_server(debug=args.debug, host=args.host, port=args.port)
+
 
 if __name__ == '__main__':
     parser = ArgumentParser(description="Find image files in a directory tree.")
@@ -205,12 +216,5 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--port", required=False, default="8050",
                         help="The port the server is listening on.")
     args = parser.parse_args()
-    # Initialize the app - incorporate a Dash Bootstrap theme
-    external_stylesheets = [dbc.themes.CERULEAN]
-    app = Dash(__name__,
-               external_stylesheets=external_stylesheets,
-               suppress_callback_exceptions=True, )
+    main(args)
 
-    # App layout
-    app.layout = layout(args.root_dir)
-    app.run_server(debug=args.debug, host=args.host, port=args.port)

@@ -32,4 +32,4 @@ RUN /opt/conda/bin/pip install -e ${APP_HOME}
 
 USER ${APP_USER}
 # Run python when the container starts
-CMD ["python3", "-m", "image_search"]
+CMD ["python3", "image_search/image_searcher_cli.py"]
