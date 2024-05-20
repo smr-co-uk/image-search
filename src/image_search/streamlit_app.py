@@ -64,7 +64,7 @@ def find_similar(image, algorithm, threshold):
     if len(similar_images) > 24:
         st.info("Too many similar images found.")
     elif similar_images:
-        st.header(f"Similar Images")
+        st.subheader(f"Similar Images")
         col1, col2, col3 = st.columns(3)  # Adjust columns as needed
         for i, similar_image in enumerate(similar_images):
             with col1 if i % 3 == 0 else col2 if i % 3 == 1 else col3:
@@ -88,10 +88,31 @@ def rotate():
     print(f"In rotate angle {st.session_state.image_angle}")
 
 
-def image_search_controls():
-    hash_type = st.radio("Algorithm", ("Average Hash", "PHash"), key="algorithm", on_change=algorithm_changed)
-    threshold = st.number_input("Similarity Threshold (1-10)", min_value=1, max_value=10, key="threshold")
-    button = st.button("Rotate", on_click=rotate)
+def layout_catalog():
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("Warning cataloging images may take a long time")
+    with col2:
+        st.button("Catalog Images", on_click=catalog)
+
+
+def catalog():
+    image_searcher = ImageSearcher(st.session_state.root_dir, hash_function=to_hash(st.session_state.algorithm), catalog=True)
+    st.session_state.image_searcher = image_searcher
+
+
+def layout_image_search_controls():
+    col1, col2 = st.columns(2)
+    with col1:
+        st.radio("Algorithm Selection", ("Average Hash", "PHash"), key="algorithm", on_change=algorithm_changed)
+    with col2:
+        st.number_input("Similarity Threshold (1-10)", min_value=1, max_value=10, key="threshold")
+
+
+def layout_choose_directory():
+    st.session_state.root_dir = st_file_selector(st, key='tif', label='Choose a root directory',
+                                                 path=st.session_state.root_dir)
+    st.text_input("Root directory of images", value=st.session_state.root_dir, on_change=new_image_path)
 
 
 def image_search(uploaded_file):
@@ -100,9 +121,18 @@ def image_search(uploaded_file):
     if st.session_state.image_angle != 0:
         image = ih.rotate_image(image, st.session_state.image_angle)
     st.session_state.image = image
-    st.image(st.session_state.image, caption="Uploaded Image", use_column_width=True)
     print(f"In image_search threshold={st.session_state.threshold} algorithm={st.session_state.algorithm} counter={st.session_state.counter}")
     find_similar(st.session_state.image, st.session_state.algorithm, st.session_state.threshold)
+    st.subheader("Image to Find")
+    st.button("Rotate", on_click=rotate)
+    st.image(st.session_state.image, caption="Uploaded Image", use_column_width=True)
+
+
+def layout_file_upload():
+    uploaded_file = st.file_uploader("Choose an Image", type=["jpg", "jpeg", "png", "bmp", "gif", "tif", "tiff", "nef"],
+                                     key="uploaded_file")
+    if uploaded_file is not None:
+        image_search(st.session_state.uploaded_file)
 
 args = sys.argv[1:]
 print(f"via sys.argv {args}")
@@ -115,7 +145,7 @@ print(f"via parser {args.root_dir}")
 
 # Create an instance of your ImageSearcher class
 threshold_default = 1
-algorithm_default = "average_hash"
+algorithm_default = "Average Hash"
 image_path_default = f"{os.getenv('HOME')}/Pictures/Media/photos/scanned/"
 
 # State variables to track initial load and user interaction
@@ -137,13 +167,8 @@ if "root_dir" not in st.session_state:
 
 st.title("Image Similarity Search App")
 
-st.session_state.root_dir = st_file_selector(st, key='tif', label='Choose a directory', path=st.session_state.root_dir)
-st.write("Don't forget to update the image searcher to use the new path")
-st.text_input("Root directory of images", value=st.session_state.root_dir, on_change=new_image_path)
-
-uploaded_file = st.file_uploader("Choose an Image", type=["jpg", "jpeg", "png", "bmp", "gif", "tif", "tiff", "nef"],
-                                 key="uploaded_file")
-if uploaded_file is not None:
-    image_search_controls()
-    image_search(st.session_state.uploaded_file)
+layout_choose_directory()
+layout_catalog()
+layout_image_search_controls()
+layout_file_upload()
 

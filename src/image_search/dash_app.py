@@ -65,15 +65,15 @@ def layout(root_dir: str) -> dbc.Container:
             ]),
         ], className="border mb-2"),
         dbc.Row([
-            dbc.Col([html.Div('Image to be Found', className="text-primary text-center fs-3"),
-                     html.Div(id='output-image-upload'),
-                     html.Hr(style={"height": "10px"}),
+            dbc.Col([html.Div('Similar Images', className="text-primary text-center fs-3"),
+                     html.Div(id='output-image-found'),
+                     html.Hr(style={"height": "30px"}),
                      ]),
         ]),
         dbc.Row([
-            dbc.Col([html.Div('Images Found', className="text-primary text-center fs-3"),
-                     html.Div(id='output-image-found'),
-                     html.Hr(style={"height": "30px"}),
+            dbc.Col([html.Div('Image to Find', className="text-primary text-center fs-3"),
+                     html.Div(id='output-image-upload'),
+                     html.Hr(style={"height": "10px"}),
                      ]),
         ]),
     ], fluid=True)

@@ -4,9 +4,10 @@ import imagehash
 from imagehash import hex_to_hash, ImageHash
 import csv
 import os
+from image_search.ImageSearch import ImageSearch
 
 
-class ImageSearcher:
+class ImageSearcher(ImageSearch):
     def __init__(self, image_set_dir: str, hash_function: str = "average_hash", catalog=False, verbose=False):
         self.image_set_dir = image_set_dir
         self.hash_function = hash_function

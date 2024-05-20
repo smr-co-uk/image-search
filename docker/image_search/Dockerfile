@@ -16,7 +16,7 @@ RUN mkdir -p ${APP_HOME} \
     && chown ${APP_USER}:${APP_USER} ${APP_HOME}
 
 COPY env.yml /tmp/env.yml
-RUN micromamba install -y -n base --file /tmp/env.yml && \
+RUN micromamba install -y -n base --file /tmp/environment.yml && \
     micromamba clean --all --yes
 
 FROM base

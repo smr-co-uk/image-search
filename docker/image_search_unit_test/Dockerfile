@@ -5,7 +5,7 @@ FROM ghcr.io/smr.co.uk/image_search:${BASE_VERSION} as test_base
 USER root
 
 COPY --chown=${APP_USER}:${APP_USER} test_env.yml /tmp/test_env.yml
-RUN micromamba install -y -n base --file /tmp/test_env.yml && \
+RUN micromamba install -y -n base --file /tmp/test_environment.yml && \
     micromamba clean --all --yes
 
 FROM test_base
