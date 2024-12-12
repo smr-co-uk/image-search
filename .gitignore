@@ -11,3 +11,4 @@ __pycache__
 /tests/unit/average_hash.csv
 /tests/unit/phash.csv
 /average_hash.csv
+/venv

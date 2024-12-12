@@ -22,7 +22,7 @@ minversion = "6.0"
 addopts = "-ra --no-header --disable-warnings -p no:faulthandler --html=build/pytest_report.html --self-contained-html --junitxml=build/xunit.html"
 pythonpath = "src"
 testpaths = [
-    "tests/unit",
+  t  "tests/unit",
 ]
 
 [tool.coverage.html]
